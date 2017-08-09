@@ -1,12 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"net"
 )
 
 func main() {
 	client, err := Connect("localhost", "55545")
-
+	if err == nil {
+		client.Close()
+	} else {
+		fmt.Println(err.Error())
+	}
 }
 
 type GomsClient struct {
@@ -24,4 +29,14 @@ func Connect(address string, port string) (*GomsClient, error) {
 	}
 
 	return &result, nil
+}
+
+func (client *GomsClient) Register(topics ...string) {
+
+}
+
+func (client *GomsClient) Close() {
+	//TOOD send logout message
+
+	client.connection.Close()
 }

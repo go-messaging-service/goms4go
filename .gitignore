@@ -4,6 +4,9 @@
 *.so
 *.dylib
 
+# Binary from LiteIDE
+src/src
+
 # Test binary, build with `go test -c`
 *.test
 
