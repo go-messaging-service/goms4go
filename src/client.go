@@ -2,26 +2,19 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"goms4go/src/material"
 	"net"
-	"os"
 	"time"
 )
 
 func main() {
-	client, err := Connect("localhost", "55545")
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	client, _ := Connect("localhost", "55545")
 	time.Sleep(time.Millisecond * 100)
 
-	err = client.Register("golang", "news")
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	client.Register("golang", "news")
+	time.Sleep(time.Millisecond * 100)
+
+	client.Send("test data :)", "golang", "news")
 	time.Sleep(time.Millisecond * 100)
 
 	client.Close()
@@ -46,6 +39,22 @@ func Connect(address string, port string) (*GomsClient, error) {
 
 func (client *GomsClient) Register(topics ...string) error {
 	message := material.NewRegister(material.TypeRegister, topics)
+
+	err := client.sendMessage(message)
+
+	return err
+}
+
+func (client *GomsClient) Send(data string, topics ...string) error {
+	message := material.NewSend(material.TypeSend, topics, data)
+
+	err := client.sendMessage(message)
+
+	return err
+}
+
+func (client *GomsClient) Logout(topics ...string) error {
+	message := material.NewLogout(material.TypeLogout, topics)
 
 	err := client.sendMessage(message)
 
