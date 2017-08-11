@@ -1,4 +1,4 @@
-package main
+package material
 
 const (
 	TypeRegister = "register"
