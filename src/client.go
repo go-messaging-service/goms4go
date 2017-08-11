@@ -46,22 +46,31 @@ func Connect(address string, port string) (*GomsClient, error) {
 
 func (client *GomsClient) Register(topics ...string) error {
 	message := material.NewRegister(material.TypeRegister, topics)
+
+	err := client.sendMessage(message)
+
+	return err
+}
+
+func (client *GomsClient) Close() error {
+	message := material.NewClose(material.TypeClose)
+
+	err := client.sendMessage(message)
+
+	(*client.connection).Close()
+
+	return err
+}
+
+func (client *GomsClient) sendMessage(message interface{}) error {
 	data, err := json.Marshal(message)
 
 	if err != nil {
 		return err
 	}
 
-	println("OK")
-
 	data = append(data, '\n')
 	_, err = (*client.connection).Write(data)
 
 	return err
-}
-
-func (client *GomsClient) Close() {
-	//TODO send logout message
-
-	(*client.connection).Close()
 }
