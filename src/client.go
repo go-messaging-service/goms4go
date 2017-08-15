@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
+	"fmt"
 	"goms4go/src/material"
 	"net"
 	"time"
@@ -14,8 +16,8 @@ func main() {
 	client.Register("golang", "news")
 	time.Sleep(time.Millisecond * 100)
 
-	client.Send("test data :)", "golang", "news")
-	time.Sleep(time.Millisecond * 100)
+	//	client.Send("test data :)", "golang", "news")
+	//	time.Sleep(time.Millisecond * 100)
 
 	client.Close()
 }
@@ -35,6 +37,39 @@ func Connect(address string, port string) (*GomsClient, error) {
 	}
 
 	return &result, nil
+}
+
+func (client *GomsClient) runHandler(handler func(string), topics ...string) {
+	go func(handler func(string), conn net.Conn, topics []string) {
+		reader := bufio.NewReader(conn)
+		for {
+			line, err := reader.ReadString('\n')
+
+			if err != nil {
+				client.handleLine(line)
+
+			} else {
+				fmt.Printf("ERROR OCCURED: %s\n", err.Error())
+			}
+		}
+	}(handler, *client.connection, topics)
+}
+
+func (client *GomsClient) handleLine(line string, topics []string) {
+	rawMessage := &material.AbstractMessage{}
+	json.Unmarshal([]byte(line), rawMessage)
+
+	switch rawMessage.Messagetype {
+	case material.TypeSend:
+		message := &material.Send{}
+		json.Unmarshal([]byte(line), message)
+
+		for _, topic := range topics {
+			if contains(message.Topics, topic) {
+				handler(message.Data)
+			}
+		}
+	}
 }
 
 func (client *GomsClient) Register(topics ...string) error {
