@@ -5,7 +5,7 @@
 *.dylib
 
 # Binary from LiteIDE
-src/src
+goms4go
 
 # Test binary, build with `go test -c`
 *.test

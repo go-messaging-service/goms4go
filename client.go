@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"goms4go/src/material"
+	"goms4go/material"
 	"net"
 	"time"
 )
