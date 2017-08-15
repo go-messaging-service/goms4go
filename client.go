@@ -1,4 +1,4 @@
-package main
+package goms4go
 
 import (
 	"bufio"
@@ -8,23 +8,6 @@ import (
 	"net"
 	"time"
 )
-
-func main() {
-	client, _ := Connect("localhost", "55545")
-	time.Sleep(time.Millisecond * 100)
-
-	client.Register(client.testHandler, "golang", "news")
-	time.Sleep(time.Millisecond * 100)
-
-	//	client.Send("test data :)", "golang", "news")
-	//	time.Sleep(time.Millisecond * 100)
-
-	select {}
-}
-
-func (client *GomsClient) testHandler(data string) {
-	fmt.Println("incoming: " + data)
-}
 
 type GomsClient struct {
 	connection *net.Conn
