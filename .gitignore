@@ -6,6 +6,8 @@
 
 # Binary from LiteIDE
 goms4go
+example/*
+!example/*.go
 
 # Test binary, build with `go test -c`
 *.test
