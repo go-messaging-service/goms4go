@@ -5,4 +5,5 @@ const (
 	TypeClose    = "close"
 	TypeSend     = "send"
 	TypeLogout   = "logout"
+	TypeMessage  = "message"
 )

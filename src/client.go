@@ -13,13 +13,17 @@ func main() {
 	client, _ := Connect("localhost", "55545")
 	time.Sleep(time.Millisecond * 100)
 
-	client.Register("golang", "news")
+	client.Register(client.testHandler, "golang", "news")
 	time.Sleep(time.Millisecond * 100)
 
 	//	client.Send("test data :)", "golang", "news")
 	//	time.Sleep(time.Millisecond * 100)
 
-	client.Close()
+	select {}
+}
+
+func (client *GomsClient) testHandler(data string) {
+	fmt.Println("incoming: " + data)
 }
 
 type GomsClient struct {
@@ -45,22 +49,22 @@ func (client *GomsClient) runHandler(handler func(string), topics ...string) {
 		for {
 			line, err := reader.ReadString('\n')
 
-			if err != nil {
-				client.handleLine(line)
-
+			if err == nil {
+				client.handleLine(handler, line, topics)
 			} else {
 				fmt.Printf("ERROR OCCURED: %s\n", err.Error())
+				time.Sleep(time.Second)
 			}
 		}
 	}(handler, *client.connection, topics)
 }
 
-func (client *GomsClient) handleLine(line string, topics []string) {
+func (client *GomsClient) handleLine(handler func(string), line string, topics []string) {
 	rawMessage := &material.AbstractMessage{}
 	json.Unmarshal([]byte(line), rawMessage)
 
 	switch rawMessage.Messagetype {
-	case material.TypeSend:
+	case material.TypeMessage:
 		message := &material.Send{}
 		json.Unmarshal([]byte(line), message)
 
@@ -72,10 +76,14 @@ func (client *GomsClient) handleLine(line string, topics []string) {
 	}
 }
 
-func (client *GomsClient) Register(topics ...string) error {
+func (client *GomsClient) Register(handler func(string), topics ...string) error {
 	message := material.NewRegister(material.TypeRegister, topics)
 
 	err := client.sendMessage(message)
+
+	if err == nil {
+		client.runHandler(handler, topics...)
+	}
 
 	return err
 }
